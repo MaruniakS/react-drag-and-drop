@@ -14,26 +14,24 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  useSortable,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { arrayMove } from "@dnd-kit/sortable";
 
-import peopleData from "../data/people";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { CSS } from "@dnd-kit/utilities";
+
+import DraggableWrapper from "./DraggableWrapper";
+import DraggableRow from "./DraggableRow";
+import peopleData from "../data/people";
 
 const DraggingIcon = styled(MenuOutlined)`
   cursor: grab;
 `;
 
 const DraggingTable = styled(AntTable)`
-  .ant-table-row, .ant-table-row .anticon {
+  .ant-table-row,
+  .ant-table-row .anticon {
     cursor: grabbing;
   }
-`
+`;
 
 const columns = [
   {
@@ -53,68 +51,6 @@ const columns = [
     title: "Age",
   },
 ];
-
-const DraggableWrapper = (props: any) => {
-  const { children, ...restProps } = props;
-  const hasData = children[1] instanceof Array;
-  if (!hasData) return <tbody {...restProps}>{children}</tbody>;
-  const items = children[1].map((child: any) => Number(child.key));
-  return (
-    <SortableContext
-      items={items}
-      strategy={verticalListSortingStrategy}
-      {...restProps}
-    >
-      <tbody {...restProps}>{children}</tbody>
-    </SortableContext>
-  );
-};
-
-const DraggableRow = (props: any) => {
-  const id = props["data-row-key"];
-  const {
-    attributes,
-    listeners,
-    transform,
-    transition,
-    setNodeRef,
-    isDragging,
-  } = useSortable({ id });
-  const { children, style, ...restProps } = props;
-
-  const rowStyle = {
-    ...style,
-    transform: CSS.Transform.toString(transform),
-    transition: transition,
-    opacity: isDragging && 0.5
-  };
-
-  const hasCells = children instanceof Array;
-
-  if (!hasCells) return <tr {...restProps}>{children}</tr>;
-
-  return (
-    <tr
-      ref={setNodeRef}
-      key={id}
-      style={rowStyle}
-      {...attributes}
-      {...restProps}
-    >
-      {React.Children.map(children, (child) => {
-        const isDraggableColumn = child.key === "dragHandle";
-        if (!isDraggableColumn) {
-          return child;
-        }
-        return (
-          <td key="dragHandle" {...listeners}>
-            {child}
-          </td>
-        );
-      })}
-    </tr>
-  );
-};
 
 const Table = () => {
   const [dataSource, setDataSource] = useState(peopleData);
